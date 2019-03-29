@@ -19,7 +19,8 @@ module.exports = {
     updateContext,
     removeContext,
     addActionContext,
-    removeActionContext
+    removeActionContext,
+    getActionsByContext
 };
 
 async function getProjects(){
@@ -205,4 +206,19 @@ async function removeActionContext(action, context){
             .where('action_id', action)
             .where('context_id', context)
             .del();
+}
+
+async function getActionsByContext(id){
+    return await db
+            .select('projects.name as project', 'actions.description', 'actions.notes', 'actions.completed')
+            .from('action_contexts')
+            .innerJoin('actions', 'actions.id', 'action_contexts.action_id')
+            .innerJoin('projects', 'projects.id', 'actions.project_id')
+            .where('context_id', id)
+            .then(actions => actions.map(elem => {
+                return {
+                    ...elem,
+                    completed: Boolean(elem.completed)
+                }
+            }));
 }

@@ -37,4 +37,11 @@ router.route('/:id')
             .catch(err => res.status(500).json({ error: "Context could not be deleted." }));
     });
 
+router.route('/:id/actions')
+    .get(async (req, res) => {
+        await db.getActionsByContext(req.params.id)
+            .then(actions => res.status(200).json(actions))
+            .catch(err => res.status(500).json({ error: "Actions based on context could not be retrieved."}));
+    })
+
 module.exports = router;
