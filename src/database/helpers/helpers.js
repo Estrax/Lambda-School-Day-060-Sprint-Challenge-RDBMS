@@ -12,7 +12,12 @@ module.exports = {
     addAction,
     getActionById,
     updateAction,
-    removeAction
+    removeAction,
+    getContexts,
+    addContext,
+    getContextById,
+    updateContext,
+    removeContext
 };
 
 async function getProjects(){
@@ -124,4 +129,35 @@ async function getActionsForProject(projectId){
                     completed: Boolean(elem.completed)
                 }
             }));
+}
+
+async function getContexts(){
+    return await db
+            .select('*')
+            .from('contexts');
+}
+
+async function getContextById(id){
+    return await db
+            .select('*')
+            .from('actions')
+            .where({ 'id' : id})
+            .first();
+}
+
+async function addContext(context){
+    return await db('contexts')
+            .insert(context);
+}
+
+async function updateContext(id, context){
+    return await db('contexts')
+        .where('id', id)
+        .update(context);
+}
+
+async function removeContext(id){
+    return await db('contexts')
+            .where('id', id)
+            .del();
 }
