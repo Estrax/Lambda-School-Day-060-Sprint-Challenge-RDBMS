@@ -18,7 +18,15 @@ module.exports = {
 async function getProjects(){
     return await db
             .select('*')
-            .from('projects');
+            .from('projects')
+            .then(projects => {
+                return projects.map(elem => {
+                    return {
+                        ...elem,
+                        completed: Boolean(elem.completed)
+                    }
+                }
+            )});
 }
 
 async function addProject(project){
@@ -32,6 +40,12 @@ async function getProjectById(id){
             .from('projects')
             .where({ 'id' : id})
             .first()
+            .then(elem => {
+                return {
+                    ...elem,
+                    completed: Boolean(elem.completed)
+                }
+            })
             .then(async res => {
                 return {
                     ...res,
@@ -55,7 +69,15 @@ async function removeProject(id){
 async function getActions(){
     return await db
             .select('*')
-            .from('actions');
+            .from('actions')
+            .then(actions => {
+                return actions.map(elem => {
+                    return {
+                        ...elem,
+                        completed: Boolean(elem.completed)
+                    }
+                }
+            )});
 }
 
 async function getActionById(id){
@@ -63,7 +85,13 @@ async function getActionById(id){
             .select('*')
             .from('actions')
             .where({ 'id' : id})
-            .first();
+            .first()
+            .then(elem => {
+                return {
+                    ...elem,
+                    completed: Boolean(elem.completed)
+                }
+            });
 }
 
 async function addAction(action){
@@ -87,5 +115,13 @@ async function getActionsForProject(projectId){
     return await db
             .select('*')
             .from('actions')
-            .where('project_id', projectId);
+            .where('project_id', projectId)
+            .then(async actions => await actions.map(elem => {
+                return {
+                    id: elem.id,
+                    description: elem.description,
+                    notes: elem.notes,
+                    completed: Boolean(elem.completed)
+                }
+            }));
 }
