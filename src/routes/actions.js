@@ -37,4 +37,19 @@ router.route('/:id')
             .catch(err => res.status(500).json({ error: "Action could not be deleted." }));
     });
 
+router.route('/:id/contexts')
+    .post(async (req, res) => {
+        await db.addActionContext(req.params.id, req.body.context)
+                .then(actionContext => res.status(201).json(actionContext))
+                .catch(err => res.status(500).json({ error: "Action context could not be added."}));
+    })
+    .delete(async (req, res) => {
+        await db.removeActionContext(req.params.id, req.body.context)
+            .then(
+                actionContext => actionContext.length === 0
+                ? res.status(404).json({ message: "The action context with the specified ID does not exist." })
+                : res.status(200).json(actionContext))
+            .catch(err => res.status(500).json({ error: "Action context could not be deleted." }));
+    });
+
 module.exports = router;

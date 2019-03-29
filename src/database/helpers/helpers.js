@@ -17,7 +17,9 @@ module.exports = {
     addContext,
     getContextById,
     updateContext,
-    removeContext
+    removeContext,
+    addActionContext,
+    removeActionContext
 };
 
 async function getProjects(){
@@ -96,6 +98,12 @@ async function getActionById(id){
                     ...elem,
                     completed: Boolean(elem.completed)
                 }
+            })
+            .then(async res => {
+                return {
+                    ...res,
+                    contexts: await getActionContexts(id) || []
+                }
             });
 }
 
@@ -159,5 +167,42 @@ async function updateContext(id, context){
 async function removeContext(id){
     return await db('contexts')
             .where('id', id)
+            .del();
+}
+
+async function getActionContexts(id){
+    return await db
+            .select('contexts.name as context')
+            .from('action_contexts')
+            .innerJoin('contexts', 'contexts.id', 'action_contexts.context_id')
+            .where('action_id', id);
+}
+
+async function getActionContextsWithIDs(id){
+    return await db
+            .select('*')
+            .from('action_contexts')
+            .innerJoin('contexts', 'contexts.id', 'action_contexts.context_id')
+            .where('action_id', id);
+}
+
+async function addActionContext(action, context){
+    return await getActionContextsWithIDs(action).then(async res => {
+        return await res.filter(elem => elem.context_id === context).length === 0 ?
+            db('action_contexts')
+                .insert({
+                    action_id: action,
+                    context_id: context
+                })
+            : db('action_contexts')
+                .insert({})
+        }
+    );
+}
+
+async function removeActionContext(action, context){
+    return await db('action_contexts')
+            .where('action_id', action)
+            .where('context_id', context)
             .del();
 }
